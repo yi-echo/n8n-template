@@ -1,0 +1,550 @@
+{
+  "name": "SEO Automated Analysis Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "id": "14850764-7ba7-4722-9d4a-c1b49d23ab52",
+      "name": "Scrape Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1920,
+        -528
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "deepseek/deepseek-r1:free",
+          "mode": "list",
+          "cachedResultName": "deepseek/deepseek-r1:free"
+        },
+        "options": {}
+      },
+      "id": "9015d02b-1be6-4e7b-bcb4-e59e505c29ab",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2256,
+        -208
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "tsqfKi9rUd7BQlBI",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the best SEO Manager in the country—a world-class expert in optimizing websites to rank on Google.\n\nIn this task, you will analyze the content of the webpage and perform a detailed and structured SEO Content Audit.\n\nAudit Structure\nYou will divide your audit in 2 parts:\n- The first part is the Analysis\n- The second is the Recommendations\n\nIn the Analysis, you will include:\n- Content Quality Assessment – Evaluate the content's overall quality, accuracy, and relevance to the target audience.\n- Keyword Research and Analysis – Identify primary and secondary keywords, keyword density, and keyword placement strategies.\n- Readability Analysis – Assess the content's readability score using metrics such as Flesch-Kincaid Grade Level, Flesch Reading Ease, and Gunning-Fog Index.\n\nIn the Recommendations, you will present your recommendations and actionable suggestions in clear, organized bullet points. Recommendations must improve the rankings in Google but also the user engagement. \n\nEnsure the output is properly formatted, clean, and highly readable. Do not include any introductory or explanatory text—only the audit findings.\n\nHere is the content of my landing page: {{ $json.data }}",
+        "options": {}
+      },
+      "id": "05c29e54-f415-4738-82ef-ad6b9dbc2eef",
+      "name": "Content Audit",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2272,
+        -432
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the best SEO Manager in the country—a world-class expert in optimizing websites to rank on Google.\nIn this task, you will analyze the HTML code of a webpage and perform a detailed and structured On-Page Technical SEO Audit.\n\nAudit Structure\nYou will review all technical SEO aspects of the page. Once completed, you will present your findings and recommendations in clear, organized bullet points, categorized into three sections:\n- Critical Issues – Must be fixed immediately.\n- Quick Wins – Easy fixes with a big impact.\n- Opportunities for Improvement – Require more effort but offer potential benefits.\n\nEnsure the output is properly formatted, clean, and highly readable. Do not include any introductory or explanatory text—only the audit findings.\n\nHere is the content of my landing page: {{ $json.data }}",
+        "options": {}
+      },
+      "id": "b0d741fb-55be-4b01-a26e-b1f01c0c92f6",
+      "name": "Technical Audit",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2272,
+        -880
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "id": "534cf145-301d-48e5-a0f5-17810ec44e09",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2784,
+        -528
+      ],
+      "typeVersion": 3,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5e132873-d85a-4ab0-a820-6adcc99f92de",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        3024,
+        -496
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "=# On-Page Technical Audit\n{{ $json.output[0] }}\n\n# On-Page SEO Content Audit\n{{ $json.output[1] }}\n\n\n# On-Page SEO Keyword Audit\n{{ $json.output[2] }}",
+        "options": {}
+      },
+      "id": "3785ad5a-5bea-411e-973f-5e94212eb571",
+      "name": "Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        3280,
+        -496
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Send Email \nConnect your credentials & Easily send emails from a Gmail address. ",
+        "height": 100,
+        "width": 360,
+        "color": 3
+      },
+      "id": "13b5e3e9-e57b-4f0c-95fd-1b0ab27f6228",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2848,
+        -688
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "sendTo": "chenyilong916002@gmail.com",
+        "subject": "=On-Page SEO Audit - {{ $('Edit Fields1').item.json.url }} ",
+        "message": "={{ $json.data }}",
+        "options": {}
+      },
+      "id": "e5ee3081-556c-447c-bcdd-b69154b158b9",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3552,
+        -496
+      ],
+      "webhookId": "2979e4dc-1689-447e-8cd4-eb907b4eedf4",
+      "typeVersion": 2.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "C8VrTu0WMEaSr5Hh",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        -528
+      ],
+      "id": "f50f0c29-59c6-4580-ab95-6dec36b94a8f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert in AI SEO analysis and AI search engine accessibility.\n\nYou are evaluating a website’s readability for LLM-based tools like ChatGPT, Perplexity, and Google AI Overviews. The website's raw HTML was fetched *without JavaScript execution*, simulating how LLMs typically see pages.\n\n---\n\n### 🧾 Technical Scan Summary\n\n**Visible content (no JS):**\n- Text length: {{ $json.visibleTextLength }} characters\n- Preview: \"{{ $json.previewText }}\"\n\n**Detected features:**\n- Structured Data (JSON-LD): {{ $json.hasStructuredData }}\n- Meta Description: {{ $json.hasMetaDescription }}\n- Open Graph Metadata: {{ $json.hasOpenGraph }}\n- Headings: H1: {{ $json.hasH1 }}, H2: {{ $json.hasH2 }}, H3: {{ $json.hasH3 }}\n- `<noscript>` fallback present: {{ $json.hasNoscript }}\n- JavaScript-blocking warning found: {{ $json.jsWarning }}\n\n---\n\n### 🎯 Your task:\nEvaluate the AI-readability of this website and return:\n\n1. An **AI Readability Score (0–10)**\n2. A **brief summary** of the current state (2–4 sentences)\n3. Up to **5 actionable recommendations** to improve visibility and accessibility for AI search engines\n\n💡 If the text length is below 300 or the `JavaScript-blocking warning found` is true, clearly state that the site may not be accessible to LLMs due to JavaScript dependency.\n\n⚠️ **Important:**\nYou must also **tell the user** to check their `robots.txt` file manually, and provide this exact clickable link:  \n👉 [{{ $json.robotsTxt }}]({{ $json.robotsTxt }})  \nExplain they must ensure bots like `GPTBot`, `ChatGPT-User`, and `Google-Extended` are **not blocked**.\n\nDo not perform this check yourself — just inform the user to do it.\n\n---\n\n🎁 Format your response like this:\n\n**Score:** x/10  \n**Summary:** ...  \n**Recommendations:**\n- ...\n- Check your robots.txt file at [{{ $json.robotsTxt }}]({{ $json.robotsTxt }}) to ensure AI bots are allowed."
+      },
+      "id": "5dea7b70-a5b0-49eb-9e57-60b4f5f16d11",
+      "name": "AI SEO Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        2272,
+        320
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "deepseek-chat",
+          "mode": "list",
+          "cachedResultName": "deepseek-chat"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "d93da390-13ce-4108-88c6-5418bc975d10",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2272,
+        544
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "QArM4s6RqdzRoyjH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "deepseek/deepseek-r1:free",
+          "mode": "list",
+          "cachedResultName": "deepseek/deepseek-r1:free"
+        },
+        "options": {}
+      },
+      "id": "495330db-8fc6-4914-9579-b568e79c1076",
+      "name": "OpenAI Chat Model3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2240,
+        -608
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "tsqfKi9rUd7BQlBI",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "70e7c97d-b024-484e-b9f5-205f018fbb2e",
+              "name": "url",
+              "value": "https://www.rpworld.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        -528
+      ],
+      "id": "ee5c0809-0f19-49c2-94a8-82470608a9d5",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "deepseek/deepseek-r1:free",
+          "mode": "list",
+          "cachedResultName": "deepseek/deepseek-r1:free"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -688,
+        208
+      ],
+      "id": "f04c56fb-2769-413c-b776-d4b22919a60b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "tsqfKi9rUd7BQlBI",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "scrape",
+        "url": "={{ $json.url }}",
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        -272
+      ],
+      "id": "65f79260-483c-4775-8f11-c2852f0435a8",
+      "name": "Scrape a url and get its content",
+      "credentials": {
+        "firecrawlApi": {
+          "id": "HUZ1VIc3OhOTvVVp",
+          "name": "Firecrawl account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "deepseek/deepseek-r1:free",
+          "mode": "list",
+          "cachedResultName": "deepseek/deepseek-r1:free"
+        },
+        "options": {}
+      },
+      "id": "053145a2-f379-4d3f-9981-b379ff71df21",
+      "name": "OpenAI Chat Model4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2240,
+        192
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "tsqfKi9rUd7BQlBI",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the best Keyword research Manager in the country—a world-class expert in optimizing websites to rank on Google.\n\nIn this task, you will analyze the content of the webpage and perform a detailed and structured Keyword  Content Audit.\n\nAudit Structure\nYou will divide your audit in 2 parts:\n- The first part is the Analysis\n- The second is the Recommendations\n\nIn the Analysis, you will include:\n- Content Quality Assessment – Evaluate the content's overall quality, accuracy, and relevance to the target audience.\n- Keyword Research and Analysis – Identify primary and secondary keywords, keyword density, and keyword placement strategies.\n- Readability Analysis – Assess the content's readability score using metrics such as Flesch-Kincaid Grade Level, Flesch Reading Ease, and Gunning-Fog Index.\n\nIn the Recommendations, you will present your recommendations and actionable suggestions in clear, organized bullet points. Recommendations must improve the rankings in Google but also the user engagement. \n\nEnsure the output is properly formatted, clean, and highly readable. Do not include any introductory or explanatory text—only the audit findings.\n\nFinally, reasonable keywords and templates are given to improve the quality of the article and SEO, etc.\n\nHere is the content of my landing page: {{ $json.data }}",
+        "options": {}
+      },
+      "id": "297c2632-68d3-4dc4-a564-d668d6a59b59",
+      "name": "Keyword Audit1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2272,
+        -48
+      ],
+      "typeVersion": 1.7
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Scrape Website": {
+      "main": [
+        [
+          {
+            "node": "Content Audit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Technical Audit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI SEO Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Content Audit",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Audit": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Technical Audit": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI SEO Analysis": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI SEO Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Technical Audit",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Scrape a url and get its content",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scrape Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape a url and get its content": {
+      "main": [
+        [
+          {
+            "node": "Keyword Audit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Keyword Audit1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keyword Audit1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "28892b45-2864-4123-8265-1c1635f894d9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "03ed4ef91acb782fce1225ba4246b103cc7365bc39f06fcdcb6158eebe0dd9d3"
+  },
+  "id": "7gXRxNDcY6L1yVlx",
+  "tags": []
+}
